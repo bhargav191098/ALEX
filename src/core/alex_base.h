@@ -24,8 +24,10 @@
 #include <vector>
 #ifdef _MSC_VER
 #include <intrin.h>
-#else
+#elif defined(__x86_64__) || defined(__i386__)
 #include <x86intrin.h>
+#else
+#include "arm64_header.h"
 #endif
 #include <bitset>
 #include <cassert>
@@ -377,10 +379,10 @@ class CPUID {
   explicit CPUID(unsigned i, unsigned j) {
 #ifdef _WIN32
     __cpuidex((int*)regs, (int)i, (int)j);
-#else
-    asm volatile("cpuid"
-                 : "=a"(regs[0]), "=b"(regs[1]), "=c"(regs[2]), "=d"(regs[3])
-                 : "a"(i), "c"(j));
+#elif defined(__x86_64__) || defined(__i386__)
+  asm volatile("cpuid"
+                : "=a"(regs[0]), "=b"(regs[1]), "=c"(regs[2]), "=d"(regs[3])
+                : "a"(i), "c"(j));
 #endif
   }
 
